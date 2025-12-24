@@ -1,35 +1,32 @@
 package co.edu.uniquindio.application.exceptions;
 
-import co.edu.uniquindio.application.dto.*;
+import co.edu.uniquindio.application.dto.ResponseDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseDTO<List<ValidationDTO>>> validationExceptionHandler(
-            MethodArgumentNotValidException ex
-    ) {
-        List<ValidationDTO> errors = new ArrayList<>();
-        BindingResult results = ex.getBindingResult();
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ResponseDTO<String>> handleNotFound(NotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ResponseDTO<>(true, ex.getMessage()));
+    }
 
-        for (FieldError e : results.getFieldErrors()) {
-            errors.add(new ValidationDTO(e.getField(), e.getDefaultMessage()));
-        }
-
-        return ResponseEntity.badRequest()
-                .body(new ResponseDTO<>(true, errors));
+    @ExceptionHandler(ValueConflictException.class)
+    public ResponseEntity<ResponseDTO<String>> handleConflict(ValueConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ResponseDTO<>(true, ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseDTO<String>> generalExceptionHandler(Exception e) {
-        return ResponseEntity.internalServerError()
-                .body(new ResponseDTO<>(true, e.getMessage()));
+    public ResponseEntity<ResponseDTO<String>> handleGeneric(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ResponseDTO<>(true, "Error interno del servidor"));
     }
 }

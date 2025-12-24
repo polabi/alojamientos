@@ -1,57 +1,79 @@
 package co.edu.uniquindio.application.controllers;
 
-import co.edu.uniquindio.application.dto.*;
+import co.edu.uniquindio.application.dto.CreateUserDTO;
+import co.edu.uniquindio.application.dto.EditUserDTO;
+import co.edu.uniquindio.application.dto.UserDTO;
+import co.edu.uniquindio.application.dto.ResponseDTO;
+import co.edu.uniquindio.application.services.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
+    private final UserService userService;
+
+    // ======================
+    // CREATE
+    // ======================
     @PostMapping
     public ResponseEntity<ResponseDTO<String>> create(
             @Valid @RequestBody CreateUserDTO userDTO
-    ) {
+    ) throws Exception {
+
+        userService.create(userDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDTO<>(false, "Usuario creado correctamente"));
     }
 
+    // ======================
+    // GET BY ID
+    // ======================
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<UserDTO>> get(@PathVariable String id) throws Exception {
+
+        UserDTO user = userService.get(id);
+        return ResponseEntity.ok(new ResponseDTO<>(false, user));
+    }
+
+    // ======================
+    // DELETE
+    // ======================
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDTO<String>> delete(@PathVariable String id) throws Exception {
+
+        userService.delete(id);
+        return ResponseEntity.ok(new ResponseDTO<>(false, "Usuario eliminado"));
+    }
+
+    // ======================
+    // LIST ALL
+    // ======================
+    @GetMapping
+    public ResponseEntity<ResponseDTO<List<UserDTO>>> listAll() {
+
+        List<UserDTO> users = userService.listAll();
+        return ResponseEntity.ok(new ResponseDTO<>(false, users));
+    }
+
+    // ======================
+    // EDIT
+    // ======================
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO<String>> edit(
             @PathVariable String id,
             @Valid @RequestBody EditUserDTO userDTO
-    ) {
-        return ResponseEntity
-                .ok(new ResponseDTO<>(false, "Usuario actualizado"));
-    }
+    ) throws Exception {
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDTO<String>> delete(
-            @PathVariable String id
-    ) {
-        return ResponseEntity
-                .ok(new ResponseDTO<>(false, "Usuario eliminado"));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<UserDTO>> get(
-            @PathVariable String id
-    ) {
-        UserDTO user = new UserDTO(id, "Carlos", "carlos@email.com", "", null);
-        return ResponseEntity.ok(new ResponseDTO<>(false, user));
-    }
-
-    @GetMapping
-    public ResponseEntity<ResponseDTO<List<UserDTO>>> listAll(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String phone
-    ) {
-        List<UserDTO> list = new ArrayList<>();
-        return ResponseEntity.ok(new ResponseDTO<>(false, list));
+        userService.edit(id, userDTO);
+        return ResponseEntity.ok(new ResponseDTO<>(false, "Usuario actualizado"));
     }
 }

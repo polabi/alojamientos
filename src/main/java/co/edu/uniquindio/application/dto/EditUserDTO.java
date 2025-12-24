@@ -1,15 +1,18 @@
 package co.edu.uniquindio.application.dto;
 
-import co.edu.uniquindio.application.model.Role;
-import jakarta.validation.constraints.*;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Email;
 
 import java.time.LocalDate;
 
 public record EditUserDTO(
-        @NotBlank @Length(max = 100) String name,
-        @Length(max = 10) String phone,
-        @Length(max = 300) String photoUrl,
-        @NotNull @Past LocalDate dateBirth,
-        @NotNull Role role
+
+        String name,
+        String phone,
+
+        @Email
+        String email,
+
+        String photoUrl,
+        LocalDate dateBirth
+
 ) {}
